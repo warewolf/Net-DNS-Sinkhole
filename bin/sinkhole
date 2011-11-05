@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+# vim: foldmethod=marker filetype=perl sw=2 commentstring=\ #\ %s
+
+use strict;
+use warnings;
+use Net::DNS::Sinkhole; 
+
+my $blacklist_records = { # {{{
+  records => {
+    A  => '* 86400 IN A 10.1.2.3',
+    NS => '* 86400 IN NS ns.sinkhole.example.com',
+    SOA => '* 86400 IN SOA ns.sinkhole.example.com. cert.example.com.  ( 42 28800 14400 3600000 86400)',
+  },
+}; # }}}
+
+my $whitelist_handler = Net::DNS::Sinkhole::Handler::Whitelist->new();
+$whitelist_handler->trie->add("microsoft.com");
+
+my $blacklist_handler = Net::DNS::Sinkhole::Handler::Blacklist->new();
+$blacklist_handler->trie->add_data("dyndns.org" => $blacklist_records) ;
+$blacklist_handler->trie->add_data("ns.sinkhole.example.com" => $blacklist_records) ;
+
+my $blacklist_resolver = Net::DNS::Sinkhole::Resolver->new(resolver_object => $blacklist_handler);
+my $whitelist_resolver = Net::DNS::Sinkhole::Resolver->new(resolver_object => $whitelist_handler);
+
+my $recursive_handler = Net::DNS::Sinkhole::Handler::Recursive->new();
+my $recursive_resolver = Net::DNS::Sinkhole::Resolver->new(resolver_object => $recursive_handler);
+
+
+
+my $server = Net::DNS::Sinkhole::Server->new(
+    AutoWhitelist => 1,
+    AutoBlacklist => 1,
+    BlackList => $blacklist_resolver,
+    WhiteList => $whitelist_resolver,
+    AdditionalResolvers => [$recursive_resolver],
+    LocalAddr=>[qw(127.0.0.1)],
+    LocalPort=>5252,
+    Verbose => 0,
+);
+
+$server->main_loop();

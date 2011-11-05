@@ -55,7 +55,6 @@ sub handler { # {{{
   else { # we didn't find any records, so return custom rcode IGNORE {{{
     $rcode = "IGNORE";
   } # }}}
-
   return ( $rcode, \@answer, \@authority, \@additional, $headermask );
 } # }}}
 

@@ -35,6 +35,7 @@ sub handler { # {{{
   my ( $self, $qname, $qtype, $qclass ) = @_;
   my ( $rcode, @answer, @authority, @additional, $headermask );
 
+
   my $zone = first { $self->trie->lookup($_) } $self->wildcardsearch($qname);
   # $zone might be undef if no responses
   if ($zone) { # response was found {{{
@@ -47,7 +48,6 @@ sub handler { # {{{
   else { # no zone found in our trie, return custom rcode IGNORE {{{
     $rcode = "IGNORE";
   } # }}}
-
   return ( $rcode, \@answer, \@authority, \@additional, $headermask );
 } # }}}
 

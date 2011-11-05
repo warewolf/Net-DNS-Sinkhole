@@ -29,10 +29,10 @@ sub new { # {{{
     return $self;
 } # }}}
 
-sub resolver {
+sub resolver { # {{{
   my ($self) = @_;
   $self->{resolver_object};
-}
+} # }}}
 
 # extend Net::DNS::Resolver::Programmable to support a resolver object
 sub send { # {{{

@@ -8,7 +8,7 @@ WriteMakefile(
     VERSION_FROM        => 'lib/Net/DNS/Sinkhole.pm',
     ABSTRACT_FROM       => 'lib/Net/DNS/Sinkhole.pm',
     LICENSE             => 'perl',
-    PL_FILES            => {},
+    EXE_FILES            => { 'bin/sinkhole'},
     PREREQ_PM => {
         'Net::DNS::Nameserver' => 0,
         'Tree::Trie' => 1.8,

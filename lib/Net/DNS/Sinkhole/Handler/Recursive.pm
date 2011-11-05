@@ -37,6 +37,8 @@ sub handler { # {{{
   # clone the response
   $rcode        = $answer->header->rcode;
   @answer       = $answer->answer;
+  @additional   = $answer->additional;
+  @authority    = $answer->authority;
 
   return ( $rcode, \@answer, \@authority, \@additional, $headermask );
 } # }}}
