@@ -24,3 +24,4 @@ sub wildcardsearch { # {{{
   return $domain, @wildcards;
 } # }}}
 
+1;
