@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME                => 'Net::DNS::Sinkhole',
-    AUTHOR              => 'Ricardo Harman <perl-cpan@richardharman.com>',
+    AUTHOR              => 'Richard Harman <perl-cpan@richardharman.com>',
     VERSION_FROM        => 'lib/Net/DNS/Sinkhole.pm',
     ABSTRACT_FROM       => 'lib/Net/DNS/Sinkhole.pm',
     LICENSE             => 'perl',
