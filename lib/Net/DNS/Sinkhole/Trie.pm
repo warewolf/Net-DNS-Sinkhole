@@ -35,6 +35,11 @@ sub add { # {{{
   my ($self,@args) = @_;
   # Tree::Trie supports adding an arrayref, but we don't.
   map { croak("Adding references is unsupported") if ref($_) } @args;
+
+  # add *.zone.com when adding zone.com automatically
+  my @wildcard = map { "*.$_" } @args;
+  @args = (@wildcard,@args);
+
   my (@ret) = $self->SUPER::add(map { lc scalar reverse $_  } @args);
   @ret = map { scalar reverse lc($_) } @ret;
   wantarray ? @ret : scalar @ret;
@@ -42,6 +47,9 @@ sub add { # {{{
 
 sub add_data { # {{{
   my ($self,@args) = @_;
+
+  # XXX FIXME this is broken for
+  # $trie->add_data(this => $hashref_this, that => $hashref_that);
   $args[0] = scalar reverse lc($args[0]); 
   $self->SUPER::add_data(@args);
 } # }}}
