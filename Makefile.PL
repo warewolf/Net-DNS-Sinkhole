@@ -19,3 +19,11 @@ WriteMakefile(
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Net-DNS-Sinkhole-*' },
 );
+
+sub MY::postamble {
+  return <<'MAKE_FRAG';
+docs:
+	pod2projdocs -out html -lib lib
+
+MAKE_FRAG
+}
