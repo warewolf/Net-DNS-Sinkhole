@@ -38,7 +38,7 @@ sub new { # {{{
 
   # XXX This is poking at the innards of Net::DNS::Nameserver, XXX
   # XXX but I've got no other choice.                          XXX
-  # Turn ReplyHandler from a subref into a ReplyHandler method call against ourself
+  # Turn ReplyHandler from a subref into a ReplyHandler method call against our $self
   $self->{ReplyHandler} = sub { $self->ReplyHandler(@_) };
 
   croak "Blacklist resolver must be supplied to Sever->new()" unless ref($self->{BlackList});
