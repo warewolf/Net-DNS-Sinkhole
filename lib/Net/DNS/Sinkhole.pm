@@ -89,7 +89,7 @@ L<Net::DNS::Sinkhole::Trie> - a subclass of L<Tree::Trie> tweaked for domain nam
 
 L<Server|Net::DNS::Sinkhole::Server> is a subclass of L<Net::DNS::Nameserver>, and supports the same options passed to L<Net::DNS::Nameserver> L<-E<gt>new|Net::DNS::Nameserver/new>, with a couple additions, and one underhanded trick to make L<Net::DNS::Nameserver> support using an object as a L<ReplyHandler|Net::DNS::Nameserver/EXAMPLE> subref.
 
-There I<is> a specific order that the L<handlers|Net::DNS::Sinkhole::Handler> are called within L<Server|Net::DNS::Sinkhole::Server>.  First the L<whitelist|Net::DNS::Sinkhole::Handler::Whitelist>, next the L<blacklist|Net::DNS::Sinkhole::Handler::Blacklist>, and finally any number of L<additional resolvers|/AdditionalResolvers>.  This is so that L<whitelists|Net::DNS::Sinkhole::Handler::Whitelist> take precedence over L<blacklists|Net::DNS::Sinkhole::Handler::Blacklist>.  The first resolver that returns a L<RCODE|Net::DNS::Header/rcode> of something other than C<IGNORE> is the response that gets sent to the client.
+There I<is> a specific order that the L<handlers|Net::DNS::Sinkhole::Handler> are called within L<Server|Net::DNS::Sinkhole::Server>.  First the L<whitelist|Net::DNS::Sinkhole::Handler::Whitelist>, next the L<blacklist|Net::DNS::Sinkhole::Handler::Blacklist>, and finally any number of L<additional resolvers|Net::DNS::Sinkhole::Server/AdditionalResolvers>..  This is so that L<whitelists|Net::DNS::Sinkhole::Handler::Whitelist> take precedence over L<blacklists|Net::DNS::Sinkhole::Handler::Blacklist>.  The first resolver that returns a L<RCODE|Net::DNS::Header/rcode> of something other than C<IGNORE> is the response that gets sent to the client.
 
 Great care is taken to prevent data in the L<ADDITIONAL|Net::DNS::Packet/additional> and L<AUTHORITY|Net::DNS::Packet/authority> fields of blacklisted/whitelisted responses getting returned to clients.  If a list of authorative nameservers for blacklisted/whitelisted zones were returned to a client, that client would "learn" that the sinkhole server is not the sole authorative nameserver for a blacklisted domain, and real responses from the real authorative nameservers could be leaked to the client.  That's kind-of against the point of a sinkhole.
 
@@ -113,7 +113,7 @@ The L<Blacklist|Net::DNS::Sinkhole::Handler::Blacklist> handler first checks a L
 
 =item Recursive
 
-The L<Recursive|Net::DNS::Sinkhole::Handler::Recursive> handler 
+The L<Recursive|Net::DNS::Sinkhole::Handler::Recursive> handler performs recursive lookups and will I<always> return a non-C<IGNORE> RRCODE.  If used, it should be last resolver in L<additional resolvers|Net::DNS::Sinkhole::Server/AdditionalResolvers>.
 
 =back
 

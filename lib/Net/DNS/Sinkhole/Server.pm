@@ -10,12 +10,6 @@ Net::DNS::Sinkhole::Server - a base class for pluggable resolver handlers
 
 =head1 SYNOPSIS
 
-  my $bl = Net::DNS::Sinkhole::Handler::Blacklist->new();
-  $bl->trie->add_data("dyndns.org",{ records => {A => '* 86400 IN A 10.1.2.3'}});
-
-  my $wl = Net::DNS::Sinkhole::Handler::Whitelist->new();
-  $wl->trie->add("mtfnpy.org");
-
   my $ns = Net::DNS::Sinkhole::Server->new(
     AutoWhitelist => 1,
     AutoBlacklist => 1,
@@ -27,6 +21,40 @@ Net::DNS::Sinkhole::Server - a base class for pluggable resolver handlers
   );
 
   $ns->main_loop();
+
+=head1 DESCRIPTION
+
+description here
+
+=head1 METHODS
+
+=head2 new
+
+Beacuse L<Net::DNS::Sinkhole::Server> is a subclass of L<Net::DNS::Nameserver>, it supports all the attributes L<Net::DNS::Nameserver> supports, plus some new ones.
+
+=over 4
+
+=item AutoWhitelist
+
+If you want L<Net::DNS::Sinkhole::Server> to automatically whitelist new zones discovered through recursion to be hosted by whitelisted nameservers, turn this on.  Any true value is enabled, any false value is disabled.  In other words, 1 is on, 0 is off.
+
+=item AutoBlacklist
+
+If you want L<Net::DNS::Sinkhole::Server> to automatically blacklist new zones discovered through recursion to be hosted by blacklisted nameservers, I<and> automatically blacklist new nameservers authorative for blacklisted zones, turn this on.  Any true value is enabled, any false value is disabled.  In other words, 1 is on, 0 is off.
+
+=item BlackList
+
+Specify your L<Resolver|Net::DNS::Sinkhole::Resolver> object here that contains a L<blacklist handler|Net::DNS::Sinkhole::Handler::Blacklist>.  Required.
+
+=item WhiteList
+
+Specify your L<Resolver|Net::DNS::Sinkhole::Resolver> object here that contains a L<whitelist handler|Net::DNS::Sinkhole::Handler::Whitelist>.  Required.
+
+=item AdditionalResolvers
+
+An array reference containing any number of L<resolver objects|Net::DNS::Sinkhole::Resolver> you like.  These will be called I<after> the  L<whitelist handler|Net::DNS::Sinkhole::Handler::Whitelist> and L<blacklist handler|Net::DNS::Sinkhole::Handler::Blacklist>.  If you want the L</AutoWhitelist> and L</AutoBlacklist> functionality to work, you need to provide a L<resolver object|Net::DNS::Sinkhole::Resolver> that has a L<recursive handler|Net::DNS::Sinkhole::Handler::Recursive> in it.  Optional, but strongly suggested.
+
+=back
 
 =cut
 
@@ -50,6 +78,12 @@ sub new { # {{{
   return $self;
 } # }}}
 
+=head2 ReplyHandler
+
+ReplyHandler is what takes care of sending requests to the resolver objects, in order.  That order is the resolver object containing a L<whitelist|Net::DNS::Sinkhole::Handler::Whitelist> first, the resolver object containing a L<blacklist|Net::DNS::Sinkhole::Handler::Blacklist> second, and any additional resolvers third.  The first resolver to respond with a RRCODE other than C<IGNORE> wins, and that response is sent to the client.
+
+=cut
+
 sub ReplyHandler { # {{{
   my ($self) = shift;
   my ( $qname, $qclass, $qtype, $peerhost, $query, $conn ) = @_;
@@ -66,25 +100,31 @@ sub ReplyHandler { # {{{
     @auth  = $response->authority;
   } # }}}
   else { # none of our resolvers found anything {{{
-    # return NXDOMAIN: because either the sinkhole/whitelist don't have the record
+    # return NXDOMAIN: because either the blacklist/whitelist don't have the record
     # or the recursive resolver didn't find anything.
     $rcode = "NXDOMAIN";
   } # }}}
 
   # if our censorship check returns true, *and* we're learning,
-  # we need to redo the lookup because it was wrong, and needs to be corrected.
+  # we need to redo the lookup because it was initially wrong, and needs to be corrected.
   goto CENSOR_REDO if ( ($self->{AutoBlacklist} || $self->{AutoWhitelist} ) && $self->censor_authority(\@auth,\@add) );
-  # XXX FIXME RGH: We need to censor auth/add for whitelisted individual records,
-  # so the real auth/add records don't get leaked back to the client.
+
   return ( $rcode, \@ans, \@auth, \@add , $aa );
 
 } # }}}
 
+=head2 add_resolver
+
+=cut
 
 sub add_resolver { # {{{
   my ($self,@resolvers) = @_;
   push @{$self->{Resolvers}},@resolvers;
 } # }}}
+
+=head2 first_response
+
+=cut
 
 sub first_response { # {{{
   my ($self,$qname,$qtype,$qclass) = @_;
@@ -97,6 +137,9 @@ sub first_response { # {{{
   return undef;
 } # }}}
 
+=head2 censor_authority
+
+=cut
 
 # censor authority & additional records
 sub censor_authority { # {{{
