@@ -21,6 +21,16 @@ use strict;
 use warnings;
 use Tree::Trie;
 
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head2 new
+
+Defaults to deepsearch => exact
+
+=cut
+
 # enhance Tree::Trie's new to default to exact
 
 sub new {  # {{{
@@ -31,6 +41,24 @@ sub new {  # {{{
 } # }}}
 
 # wrap Tree::Trie's functions to reverse the inputs and outputs
+
+=head2 add
+
+Modified to quash case to lower case, and reverse the input and output Trie keys.
+
+=head2 add_data
+
+Modified to quash case to lower case, and reverse the input and output Trie keys.
+
+=head2 lookup
+
+Modified to quash case to lower case, and reverse the input and output Trie keys.
+
+=head2 lookup_data
+
+Modified to quash case to lower case, and reverse the input and output Trie keys.
+
+=cut
 
 sub add { # {{{
   my ($self,@args) = @_;
@@ -76,13 +104,57 @@ sub lookup_data { # {{{
 
 ### Subroutines I havn't wrapped yet
 
+=head2 add_all
+
+This method has been intentionally disabled.
+
+=cut
+
 sub add_all { my ($self) = @_; croak "add_all is unsupported"; }
+
+=head2 remove
+
+This method has been intentionally disabled.
+
+=cut
+
 sub remove { my ($self) = @_; croak "remove is unsupported"; }
+
+=head2 delete_data
+
+This method has been intentionally disabled.
+
+=cut
+
 sub delete_data { my ($self) = @_; croak "delete_data is unsupported"; }
+
+=head2 deepsearch
+
+This method has been intentionally disabled.
+
+=cut
+
 sub deepsearch { my ($self) = @_; croak "deepsearch is unsupported"; }
+
+=head2 end_marker
+
+This method has been intentionally disabled.
+
+=cut
+
 sub end_marker { my ($self) = @_; croak "end_marker is unsupported"; }
 
 ### Custom subroutines
+
+=head2 clone_record
+
+clone_record() is used to copy the L<Trie|Net::DNS::Sinkhole::Trie> value from one key to another.  This is used in L<censor_authority|Net::DNS::Sinkhole::Server/censor_authority> during AutoWhitelisting and AutoBlacklisting.
+
+Takes two arguments: source key to copy from, and destination key to copy to.
+
+ $trie->clone_record($source_key,$destination_key);
+
+=cut
 
 sub clone_record { # {{{
   my ($self,$source,$dest) = @_;

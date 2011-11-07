@@ -17,6 +17,12 @@ my $whitelist_handler = Net::DNS::Sinkhole::Handler::Whitelist->new();
 # add mtfnpy.com and *.mtfnpy.com to whitelist
 $whitelist_handler->trie->add("mtfnpy.com");
 
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head2 new
+
 =cut
 
 sub new { # {{{
@@ -30,6 +36,10 @@ sub new { # {{{
 
     return $self;
 } # }}}
+
+=head2 handler
+
+=cut
 
 sub handler { # {{{
   my ( $self, $qname, $qtype, $qclass ) = @_;

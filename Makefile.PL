@@ -23,7 +23,7 @@ WriteMakefile(
 sub MY::postamble {
   return <<'MAKE_FRAG';
 docs:
-	pod2projdocs -out html -lib lib
+	$(NOECHO) pod2projdocs -out html -lib lib
 
 MAKE_FRAG
 }

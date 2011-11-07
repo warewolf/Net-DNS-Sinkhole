@@ -8,14 +8,26 @@ Net::DNS::Sinkhole::Resolver - a base class for pluggable resolver handlers
 
 =head1 SYNOPSIS
 
-my $whitelist_handler = Net::DNS::Sinkhole::Handler::Whitelist;
-$whitelist_handler->trie->add("mtfnpy.com");
-my $whitelist_resolver = Net::DNS::Sinkhole::Resolver->new(resolver_object => $whitelist_handler);
+ my $whitelist_handler = Net::DNS::Sinkhole::Handler::Whitelist;
+ $whitelist_handler->trie->add("mtfnpy.com");
+ my $whitelist_resolver = Net::DNS::Sinkhole::Resolver->new(resolver_object => $whitelist_handler);
 
 =cut
 
 $Net::DNS::rcodesbyname{IGNORE} = 11;
 %Net::DNS::rcodesbyval = reverse %Net::DNS::rcodesbyname;
+
+=head1 DESCRIPTION
+
+L<Resolver|Net::DNS::Sinkhole::Resolver> is a subclass of L<Net::DNS::Sinkhole::Resolver>, but extends new() and send() to support some additional features.
+
+=head1 METHODS
+
+=head2 new
+
+Adds a resolver_object to L<Net::DNS::Resolver::Programmable>.
+
+=cut
 
 # extend Net::DNS::Resolver::Programmable to support a resolver object
 sub new { # {{{
@@ -29,10 +41,22 @@ sub new { # {{{
     return $self;
 } # }}}
 
+=head2 resolver
+
+Returns the resolver object (handler object) inside the L<Net::DNS::Sinkhole::Resolver> object.
+
+=cut
+
 sub resolver { # {{{
   my ($self) = @_;
   $self->{resolver_object};
 } # }}}
+
+=head2 send
+
+Calls the resolver object to perform DNS name resolution.
+
+=cut
 
 # extend Net::DNS::Resolver::Programmable to support a resolver object
 sub send { # {{{

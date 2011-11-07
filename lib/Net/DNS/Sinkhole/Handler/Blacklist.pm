@@ -6,6 +6,24 @@ use warnings;
 use List::Util qw(first);
 use Net::DNS::RR;
 
+=head1 NAME 
+
+Net::DNS::Sinkhole::Handler::Blacklist - a blacklisting handler
+
+=cut
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head2 handler
+
+Description of handler
+
+=cut
+
 sub handler { # {{{
   my ( $self, $qname, $qtype, $qclass ) = @_;
   my ( $rcode, @answer, @authority, @additional, $headermask );

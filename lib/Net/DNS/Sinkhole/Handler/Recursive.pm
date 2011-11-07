@@ -14,6 +14,12 @@ Net::DNS::Sinkhole::Handler::Recursive - a recusing handler for a resolver
 
 my $recursive_handler = Net::DNS::Sinkhole::Handler::Recursive->new();
 
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head2 new
+
 =cut
 
 sub new { # {{{
@@ -27,6 +33,10 @@ sub new { # {{{
 
     return $self;
 } # }}}
+
+=head2 handler
+
+=cut
 
 sub handler { # {{{
   my ( $self, $qname, $qtype, $qclass ) = @_;

@@ -87,13 +87,8 @@ L<Net::DNS::Sinkhole::Trie> - a subclass of L<Tree::Trie> tweaked for domain nam
 
 =head1 SERVER
 
-L<Server|Net::DNS::Sinkhole::Server> is a subclass of L<Net::DNS::Nameserver>, and supports the same options passed to L<Net::DNS::Nameserver> L<-E<gt>new|Net::DNS::Nameserver/new>, with a couple additions, and one underhanded trick to make L<Net::DNS::Nameserver> support using an object as a L<ReplyHandler|Net::DNS::Nameserver/EXAMPLE> subref.
+L<Server|Net::DNS::Sinkhole::Server> provides a L<DNS Nameserver|Net::DNS::Nameserver> that uses multiple resolver objects for name resolution.  Those resolver objects have a little bit of intelligence in them to selectivly rewrite or even entirely replace a response that would normally be sent to a DNS client via recursive DNS resolution.
 
-There I<is> a specific order that the L<handlers|Net::DNS::Sinkhole::Handler> are called within L<Server|Net::DNS::Sinkhole::Server>.  First the L<whitelist|Net::DNS::Sinkhole::Handler::Whitelist>, next the L<blacklist|Net::DNS::Sinkhole::Handler::Blacklist>, and finally any number of L<additional resolvers|Net::DNS::Sinkhole::Server/AdditionalResolvers>..  This is so that L<whitelists|Net::DNS::Sinkhole::Handler::Whitelist> take precedence over L<blacklists|Net::DNS::Sinkhole::Handler::Blacklist>.  The first resolver that returns a L<RCODE|Net::DNS::Header/rcode> of something other than C<IGNORE> is the response that gets sent to the client.
-
-Great care is taken to prevent data in the L<ADDITIONAL|Net::DNS::Packet/additional> and L<AUTHORITY|Net::DNS::Packet/authority> fields of blacklisted/whitelisted responses getting returned to clients.  If a list of authorative nameservers for blacklisted/whitelisted zones were returned to a client, that client would "learn" that the sinkhole server is not the sole authorative nameserver for a blacklisted domain, and real responses from the real authorative nameservers could be leaked to the client.  That's kind-of against the point of a sinkhole.
-
-B<NOTE:> Rewriting of L<ADDITIONAL|Net::DNS::Packet/additional> and L<AUTHORITY|Net::DNS::Packet/authority> fields is I<not> performed for L<additional resolvers|Net::DNS::Sinkhole::Server/AdditionalResolvers>.
 
 =head1 RESPONSE HANDLERS
 

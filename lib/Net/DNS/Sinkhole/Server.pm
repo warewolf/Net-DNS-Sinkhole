@@ -6,7 +6,7 @@ use List::Util qw(first);
 
 =head1 NAME
 
-Net::DNS::Sinkhole::Server - a base class for pluggable resolver handlers
+Net::DNS::Sinkhole::Server - a server for pluggable resolver handlers
 
 =head1 SYNOPSIS
 
@@ -24,7 +24,14 @@ Net::DNS::Sinkhole::Server - a base class for pluggable resolver handlers
 
 =head1 DESCRIPTION
 
-description here
+L<Server|Net::DNS::Sinkhole::Server> is a subclass of L<Net::DNS::Nameserver>, and supports the same options passed to L<Net::DNS::Nameserver> L<-E<gt>new|Net::DNS::Nameserver/new>, with a couple additions, and one underhanded trick to make L<Net::DNS::Nameserver> support using an object as a L<ReplyHandler|Net::DNS::Nameserver/EXAMPLE> code reference.
+
+There I<is> a specific order that the L<handlers|Net::DNS::Sinkhole::Handler> are called within L<Server|Net::DNS::Sinkhole::Server>.  First the L<whitelist|Net::DNS::Sinkhole::Handler::Whitelist>, next the L<blacklist|Net::DNS::Sinkhole::Handler::Blacklist>, and finally any number of L<additional resolvers|Net::DNS::Sinkhole::Server/AdditionalResolvers>.  This is so that L<whitelists|Net::DNS::Sinkhole::Handler::Whitelist> take precedence over L<blacklists|Net::DNS::Sinkhole::Handler::Blacklist>.  The first resolver that returns a L<RCODE|Net::DNS::Header/rcode> of something other than C<IGNORE> is the response that gets sent to the client.
+
+Great care is taken to prevent data in the L<ADDITIONAL|Net::DNS::Packet/additional> and L<AUTHORITY|Net::DNS::Packet/authority> fields of blacklisted/whitelisted responses getting returned to clients.  If a list of authorative nameservers for blacklisted/whitelisted zones were returned to a client, that client would "learn" that the sinkhole server is not the sole authorative nameserver for a blacklisted domain, and real responses from the real authorative nameservers could be leaked to the client.  That's kind-of against the point of a sinkhole.
+
+B<NOTE:> Rewriting of L<ADDITIONAL|Net::DNS::Packet/additional> and L<AUTHORITY|Net::DNS::Packet/authority> fields is I<not> performed for L<additional resolvers|Net::DNS::Sinkhole::Server/AdditionalResolvers>.
+
 
 =head1 METHODS
 
@@ -80,7 +87,7 @@ sub new { # {{{
 
 =head2 ReplyHandler
 
-ReplyHandler is what takes care of sending requests to the resolver objects, in order.  That order is the resolver object containing a L<whitelist|Net::DNS::Sinkhole::Handler::Whitelist> first, the resolver object containing a L<blacklist|Net::DNS::Sinkhole::Handler::Blacklist> second, and any additional resolvers third.  The first resolver to respond with a RRCODE other than C<IGNORE> wins, and that response is sent to the client.
+ReplyHandler is what takes care of sending requests to the resolver objects, in order.  That order is the resolver object containing a L<whitelist|Net::DNS::Sinkhole::Handler::Whitelist> first, the resolver object containing a L<blacklist|Net::DNS::Sinkhole::Handler::Blacklist> second, and any additional resolvers third.  The first resolver to respond with a RCODE other than C<IGNORE> wins, and that response is sent to the client.
 
 =cut
 
@@ -246,5 +253,11 @@ sub censor_authority { # {{{
 
   return;
 } # }}}
+
+=head1 THE IGNORE RCODE
+
+The DNS specification (RFC1035) lists 10 RCODEs, but has a block of 4 that are unassigned.  L<Net::DNS::Sinkhole::Server> and L<Net::DNS::Sinkhole::Handler> needed a way to communicate to each other to pass the message from Handler to Server "I'm not handling this DNS query, move on to the next handler".  So an unassigned RCODE number 11 was used, and given the name IGNORE.  This is actually performed by L<Net::DNS::Sinkhole::Resolver> at runtime, adding the new RCODE to a pair of L<Net::DNS> class data structures.
+
+This RCODE should never be seen by a client, since it is used solely internally by L<Net::DNS::Sinkhole::Server> and L<Net::DNS::Sinkhole::Handler>.  The only possible complication is if DNS suddenly decided to extend the RCODEs further, into the currently unassigned block of 11 through 15.  It doesn't look like that is very likely, since other RFCs extend it up way beyond 15, but still leave 11-15 unassigned.
 
 1;
