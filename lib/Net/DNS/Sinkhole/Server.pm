@@ -260,4 +260,6 @@ The DNS specification (RFC1035) lists 10 RCODEs, but has a block of 4 that are u
 
 This RCODE should never be seen by a client, since it is used solely internally by L<Net::DNS::Sinkhole::Server> and L<Net::DNS::Sinkhole::Handler>.  The only possible complication is if DNS suddenly decided to extend the RCODEs further, into the currently unassigned block of 11 through 15.  It doesn't look like that is very likely, since other RFCs extend it up way beyond 15, but still leave 11-15 unassigned.
 
+=cut
+
 1;
