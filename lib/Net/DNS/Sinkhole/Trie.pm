@@ -5,7 +5,7 @@ use parent qw(Tree::Trie);
 
 =head1 NAME
 
-Net::DNS::Sinkhole::Store - a lightweight wrapper around Tree::Trie for storing DNS Domain names
+Net::DNS::Sinkhole::Trie - a lightweight wrapper around Tree::Trie for storing DNS Domain names
 
 =head1 SYNOPSIS
 
@@ -23,40 +23,72 @@ use Tree::Trie;
 
 =head1 DESCRIPTION
 
+Net::DNS::Sinkhole::Trie is a subclass of L<Tree::Trie> customized for efficient storage of DNS domain names.  DNS has a hierarchy like a tree, but is expressed backwards.  This module takes care of quashing DNS names to lower case, and reverses the domain names at storage and retrieval time.
+
+Instead of storing "www.google.com" where "www" would be the root, it is reversed so that the root is "com".  It actually ends up stored as moc.elgoog.www in the Trie.
+
+Since this DNS sinkhole system is taking ownership of a portion of the DNS hierarchy, it makes sense to take ownership of that portion of the tree, and anything below it.  Example:
+
+Add google.com:
+
+  $trie->add("google.com");
+
+This results in "google.com" being added to the trie, along with "*.google.com".  This is intentionally I<not> optional, because it will only lead to confusion of recursive nameservers that recurse into the sinkhole server for data, and headaches.
+
 =head1 METHODS
 
 =head2 new
 
-Defaults to deepsearch => exact
+Exactly the same as Tree::Trie ->new, but has been modified to change the deepsearch option to be "exact".
 
 =cut
 
 # enhance Tree::Trie's new to default to exact
 
 sub new {  # {{{
-  my ($class) = @_;
-  my $self = Tree::Trie->new({deepsearch=> "exact"});
+  my ($class,@args) = @_;
+  my $self = Tree::Trie->new({deepsearch=> "exact", @args});
   bless $self, $class;
   return $self;
 } # }}}
 
-# wrap Tree::Trie's functions to reverse the inputs and outputs
+### Custom subroutines
 
-=head2 add
+=head1 NEW METHODS
+
+=head2 clone_record
+
+clone_record() is used to copy the L<Trie|Net::DNS::Sinkhole::Trie> value from one key to another.  This is used in L<censor_authority|Net::DNS::Sinkhole::Server/censor_authority> during AutoWhitelisting and AutoBlacklisting.
+
+Takes two arguments: source key to copy from, and destination key to copy to.
+
+ $trie->clone_record($source_key,$destination_key);
+
+=cut
+
+sub clone_record { # {{{
+  my ($self,$source,$dest) = @_;
+  my $data = $self->lookup_data($source);
+  $self->add_data($dest, $data);
+} # }}}
+
+=head1 MODIFIED METHODS
+
+The following methods were modified in support of DNS name storage:
 
 Modified to quash case to lower case, and reverse the input and output Trie keys.
 
-=head2 add_data
+=over 4
 
-Modified to quash case to lower case, and reverse the input and output Trie keys.
+=item add
 
-=head2 lookup
+=item add_data
 
-Modified to quash case to lower case, and reverse the input and output Trie keys.
+=item lookup
 
-=head2 lookup_data
+=item lookup_data
 
-Modified to quash case to lower case, and reverse the input and output Trie keys.
+=back
 
 =cut
 
@@ -104,63 +136,29 @@ sub lookup_data { # {{{
 
 ### Subroutines I havn't wrapped yet
 
-=head2 add_all
+=head1 DISABLED METHODS
 
-This method has been intentionally disabled.
+This method has been intentionally disabled, because they have not been implemented yet.
+
+=over 4
+
+=item remove
+
+=item delete_data
+
+=item deepsearch
+
+=item end_marker
+
+=back
 
 =cut
 
 sub add_all { my ($self) = @_; croak "add_all is unsupported"; }
-
-=head2 remove
-
-This method has been intentionally disabled.
-
-=cut
-
 sub remove { my ($self) = @_; croak "remove is unsupported"; }
-
-=head2 delete_data
-
-This method has been intentionally disabled.
-
-=cut
-
 sub delete_data { my ($self) = @_; croak "delete_data is unsupported"; }
-
-=head2 deepsearch
-
-This method has been intentionally disabled.
-
-=cut
-
 sub deepsearch { my ($self) = @_; croak "deepsearch is unsupported"; }
-
-=head2 end_marker
-
-This method has been intentionally disabled.
-
-=cut
-
 sub end_marker { my ($self) = @_; croak "end_marker is unsupported"; }
-
-### Custom subroutines
-
-=head2 clone_record
-
-clone_record() is used to copy the L<Trie|Net::DNS::Sinkhole::Trie> value from one key to another.  This is used in L<censor_authority|Net::DNS::Sinkhole::Server/censor_authority> during AutoWhitelisting and AutoBlacklisting.
-
-Takes two arguments: source key to copy from, and destination key to copy to.
-
- $trie->clone_record($source_key,$destination_key);
-
-=cut
-
-sub clone_record { # {{{
-  my ($self,$source,$dest) = @_;
-  my $data = $self->lookup_data($source);
-  $self->add_data($dest, $data);
-} # }}}
 
 
 1;

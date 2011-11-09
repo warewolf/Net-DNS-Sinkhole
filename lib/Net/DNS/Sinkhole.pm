@@ -96,7 +96,7 @@ L<Server|Net::DNS::Sinkhole::Server> provides a L<DNS Nameserver|Net::DNS::Names
 
 =item Whitelist
 
-The L<Whitelist|Net::DNS::Sinkhole::Handler::Whitelist> handler performs recursive lookups for zones that have been whitelisted in a L<Trie|Net::DNS::Sinkhole::Trie>, and removes the L<ADDITIONAL|Net::DNS::Packet/additional> and  L<AUTHORITY|Net::DNS::Packet/authority> portions of the response before sending it to a client.  If a zone is not whitelisted, the handler returns the C<IGNORE> L<RCODE|Net::DNS::Header/rcode>.
+The L<Whitelist|Net::DNS::Sinkhole::Handler::Whitelist> handler performs recursive lookups for zones that have been whitelisted in a L<Trie|Net::DNS::Sinkhole::Trie>, and removes the L<ADDITIONAL|Net::DNS::Packet/additional> and  L<AUTHORITY|Net::DNS::Packet/authority> portions of the response before sending it to a client.  If a zone is not whitelisted, the handler returns the C<L<IGNORE|Net::DNS::Sinkhole::Server/THE_IGNORE_RCODE>> L<RCODE|Net::DNS::Header/rcode>.
 
 L<Whitelist|Net::DNS::Sinkhole::Handler::Whitelist> isn't a subclass of L<Net::DNS::Resolver>, but arguments passed to to L<Whitelist|Net::DNS::Sinkhole::Handler::Whitelist> L<-E<gt>new|Net::DNS::Sinkhole::Handler::Whitelist/new> will be passed directly to L<Net::DNS::Resolver> L<-E<gt>new|Net::DNS::Resolver/new> so that you can specify the nameservers to be used for recursion, for example. 
 
@@ -104,11 +104,11 @@ By default, L<Whitelist|Net::DNS::Sinkhole::Handler::Whitelist> configures the L
 
 =item Blacklist
 
-The L<Blacklist|Net::DNS::Sinkhole::Handler::Blacklist> handler first checks a L<Trie|Net::DNS::Sinkhole::Trie> to see if the zone is blacklisted.  If it is, it retrieves the L<Trie|Net::DNS::Sinkhole::Trie> value for that zone (a hashref), and checks if the desired RR type / record pair exists under a C<records> key.  If the desired RR type exists, it returns that record to the client.  L<Blacklist|Net::DNS::Sinkhole::Handler::Blacklist> also provides proper L<ADDITIONAL|Net::DNS::Packet/additional> and L<AUTHORITY|Net::DNS::Packet/authority> values in the response to the client, to keep it coming back to the sinkhole server in the future.  If a zone is not blacklisted, the handler returns the C<IGNORE> L<RCODE|Net::DNS::Header/rcode>.
+The L<Blacklist|Net::DNS::Sinkhole::Handler::Blacklist> handler first checks a L<Trie|Net::DNS::Sinkhole::Trie> to see if the zone is blacklisted.  If it is, it retrieves the L<Trie|Net::DNS::Sinkhole::Trie> value for that zone (a hashref), and checks if the desired RR type / record pair exists under a C<records> key.  If the desired RR type exists, it returns that record to the client.  L<Blacklist|Net::DNS::Sinkhole::Handler::Blacklist> also provides proper L<ADDITIONAL|Net::DNS::Packet/additional> and L<AUTHORITY|Net::DNS::Packet/authority> values in the response to the client, to keep it coming back to the sinkhole server in the future.  If a zone is not blacklisted, the handler returns the C<L<IGNORE|Net::DNS::Sinkhole::Server/THE_IGNORE_RCODE>> L<RCODE|Net::DNS::Header/rcode>.
 
 =item Recursive
 
-The L<Recursive|Net::DNS::Sinkhole::Handler::Recursive> handler performs recursive lookups and will I<always> return a non-C<IGNORE> RRCODE.  If used, it should be last resolver in L<additional resolvers|Net::DNS::Sinkhole::Server/AdditionalResolvers>.
+The L<Recursive|Net::DNS::Sinkhole::Handler::Recursive> handler performs recursive lookups and will I<always> return a non-C<L<IGNORE|Net::DNS::Sinkhole::Server/THE_IGNORE_RCODE>> L<RCODE|Net::DNS::Header/rcode>.  If used, it should be last resolver in L<additional resolvers|Net::DNS::Sinkhole::Server/AdditionalResolvers>.
 
 =back
 
