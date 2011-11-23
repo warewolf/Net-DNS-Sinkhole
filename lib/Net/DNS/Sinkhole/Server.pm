@@ -6,7 +6,7 @@ use List::Util qw(first);
 
 =head1 NAME
 
-Net::DNS::Sinkhole::Server - a server for pluggable resolver handlers
+Net::DNS::Sinkhole::Server - a server for pluggable resolvers
 
 =head1 SYNOPSIS
 

@@ -6,7 +6,7 @@ use warnings;
 
 =head1 NAME
 
-Net::DNS::Sinkhole::Handler - a base handler and support functions
+Net::DNS::Sinkhole::Handler - a base class for reply handlers and class support functions
 
 =head1 SYNOPSIS
 

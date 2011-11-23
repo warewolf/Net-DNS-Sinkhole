@@ -4,7 +4,7 @@ use parent qw(Net::DNS::Resolver::Programmable);
 
 =head1 NAME
 
-Net::DNS::Sinkhole::Resolver - a base class for pluggable resolver handlers
+Net::DNS::Sinkhole::Resolver - a resolver with custom reply handlers
 
 =head1 SYNOPSIS
 
@@ -25,7 +25,7 @@ L<Resolver|Net::DNS::Sinkhole::Resolver> is a subclass of L<Net::DNS::Sinkhole::
 
 =head2 new
 
-Create a new Net::DNS::Sinkhole::Resolver object.  It takes one additional parameter - a resolution handler object from the Net::DNS::Sinkhole::Handler class.
+Create a new Net::DNS::Sinkhole::Resolver object.  It takes one additional parameter - a reply handler object from the Net::DNS::Sinkhole::Handler class.
 
  my $resolver = Net::DNS::Sinkhole::Resolver->new(resolver_object => $handler_object);
 
@@ -45,7 +45,7 @@ sub new { # {{{
 
 =head2 resolver
 
-Returns the resolver object (handler object) inside the L<Net::DNS::Sinkhole::Resolver> object.  This grants access to the Net::DNS::Sinkhole::Handler object's Trie object.
+Returns the reply handler object inside the L<Net::DNS::Sinkhole::Resolver> object.  This grants access to the Net::DNS::Sinkhole::Handler object's Trie object for example.
 
 =cut
 
@@ -56,11 +56,11 @@ sub resolver { # {{{
 
 =head2 send
 
-Calls the resolver object to perform DNS name resolution.
+Calls the handler object to perform DNS name resolution.
 
-B<NOTE:> the send method of Net::DNS::Resolver::Programmable has been overridden to extend it to support using an object as a resolver, and to support returning AUTHORITY and ADDITIONAL sections in a DNS response packet.  
+B<NOTE:> the send method of Net::DNS::Resolver::Programmable has been overridden to extend it to support using an object as a reply handler, and to support returning AUTHORITY and ADDITIONAL sections in a DNS response packet.  
 
-The resolution handler is expected to return a list of 5 scalar values, some of which are references.  It receives three scalar values, namely the QNAME (record name), RR_TYPE (the DNS resource record type), and the DNS CLASS ("IN" for INternet).  The class can be left off, and will default to "IN" for internet.
+The reply handler is expected to return a list of 5 scalar values, some of which are references.  It receives three scalar values, namely the QNAME (record name), RR_TYPE (the DNS resource record type), and the DNS CLASS ("IN" for INternet).  The class can be left off, and will default to "IN" for internet.
 
   ($rcode, $answer, $authority, $additional, $headermask ) = $resolver_object->handler($domain, $rr_type, $class);
 
